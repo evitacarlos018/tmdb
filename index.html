@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" href="style.css">
+	<title>TMDB Servo</title>
+</head>
+<body>	
+	<header>
+		<form id="form">
+			<input type="text" id="search" class="search" placeholder="SEARCH">
+		</form>
+	</header>
+	<div id="tags">
+		<div class="tag">Action</div>
+		<div class="tag">Adventure</div>
+		<div class="tag">Animation</div>
+		<div class="tag">Comedy</div>
+		<div class="tag">Crime</div>
+		<div class="tag">Documentary</div>
+		<div class="tag">Drama</div>
+		<div class="tag">Family</div>
+		<div class="tag">Fantasy</div>
+		<div class="tag">History</div>
+		<div class="tag">Horror</div>
+		<div class="tag">Music</div>
+		<div class="tag">Mystery</div>
+		<div class="tag">Romance</div>
+		<div class="tag">Science Fiction</div>
+		<div class="tag">TV Movie</div>
+		<div class="tag">Thriller</div>
+		<div class="tag">War</div>
+		<div class="tag">Western</div>
+	</div>
+
+	<main id="main"></main>
+	<div class="pagination">
+		<div class="page disabled" id="prev">Previous</div>
+		<div class="page" id="current">1</div>
+		<div class="page" id="next">Next</div>
+	</div>
+	<script>
+		const api_key    = 'api_key=1bc155a1144118e66b905d5ba84d6ba9';
+		const base_url   = 'https://api.themoviedb.org/3';
+		const api_url    = base_url + '/discover/movie?sort_by=popularity.desc&' + api_key;
+		const img_url    = 'https://image.tmdb.org/t/p/w500';
+		const search_url = base_url + '/search/movie?' + api_key + '&query=';
+		const main     = document.getElementById('main');
+		const form     = document.getElementById('form');
+		const search   = document.getElementById('search');
+		const tags 	   = document.getElementById('tags');
+		const current  = document.getElementById('current');
+		const next	   = document.getElementById('next');
+		const prev	   = document.getElementById('prev');
+		const genres   = [
+		      {
+		         "id":28,
+		         "name":"Action"
+		      },
+		      {
+		         "id":12,
+		         "name":"Adventure"
+		      },
+		      {
+		         "id":16,
+		         "name":"Animation"
+		      },
+		      {
+		         "id":35,
+		         "name":"Comedy"
+		      },
+		      {
+		         "id":80,
+		         "name":"Crime"
+		      },
+		      {
+		         "id":99,
+		         "name":"Documentary"
+		      },
+		      {
+		         "id":18,
+		         "name":"Drama"
+		      },
+		      {
+		         "id":10751,
+		         "name":"Family"
+		      },
+		      {
+		         "id":14,
+		         "name":"Fantasy"
+		      },
+		      {
+		         "id":36,
+		         "name":"History"
+		      },
+		      {
+		         "id":27,
+		         "name":"Horror"
+		      },
+		      {
+		         "id":10402,
+		         "name":"Music"
+		      },
+		      {
+		         "id":9648,
+		         "name":"Mystery"
+		      },
+		      {
+		         "id":10749,
+		         "name":"Romance"
+		      },
+		      {
+		         "id":878,
+		         "name":"Science Fiction"
+		      },
+		      {
+		         "id":10770,
+		         "name":"TV Movie"
+		      },
+		      {
+		         "id":53,
+		         "name":"Thriller"
+		      },
+		      {
+		         "id":10752,
+		         "name":"War"
+		      },
+		      {
+		         "id":37,
+		         "name":"Western"
+		      }
+		   ]
+
+		var selected_genre = []
+		var current_pg = 1;
+		var next_pg = 2;
+		var prev_pg = 3;
+		var last_url = '';
+		var total_pg = 100;
+
+		genre_movies();
+		function genre_movies()
+		{
+			tags.innerHTML = '';
+			genres.forEach(genre => {
+				const x = document.createElement('div');
+				x.classList.add('tag');
+				x.id = genre.id;
+				x.innerText = genre.name;
+				x.addEventListener('click', () => {
+					if (selected_genre.length == 0)
+					{
+						selected_genre.push(genre.id); 
+					}
+					else 
+					{
+						if (selected_genre.includes(genre.id))
+						{
+							selected_genre.forEach((id, idx) => {
+								if (id == genre.id)
+								{
+									selected_genre.splice(idx, 1);
+								}					
+							})
+						}
+						else
+						{
+							selected_genre.push(genre.id); 
+						}
+					}
+					console.log(selected_genre)
+					all_movies(api_url + '&with_genres=' + encodeURI(selected_genre.join(',')));
+					highlight_tag()
+				})
+				tags.append(x);
+			})
+		}
+
+		function highlight_tag()
+		{
+			const tags = document.querySelectorAll('.tag');
+			tags.forEach(tag => {
+				tag.classList.remove('highlight');
+			});
+			clear_btn()
+			if (selected_genre.length != 0)
+			{
+				selected_genre.forEach(id => {
+					const tag_highlight = document.getElementById(id);
+					tag_highlight.classList.add('highlight');
+
+				})
+			}
+		}
+
+		function clear_btn()
+		{
+			let clear_btn = document.getElementById('clear');
+			if (clear_btn)
+			{
+				clear_btn.classList.add('highlight');
+			}
+
+			else
+			{
+				let clear = document.createElement('div');
+				clear.classList.add('tag', 'highlight');
+				clear.id = 'clear';
+				clear.innerText = 'Clear x';
+				clear.addEventListener('click', () => {
+					selected_genre = [];
+					genre_movies();
+					all_movies(api_url);
+				})
+				tags.append(clear);
+			}
+		}
+
+		all_movies(api_url);
+
+		function all_movies(url) 
+		{
+			last_url = url;
+		  	fetch(url).then(res => res.json()).then(data => 
+		  	{
+		    	console.log(data.results);
+		    	if (data.results.length != 0)
+		    	{
+		    		show_movies(data.results);
+					current_pg = data.page;
+					next_pg = current_pg + 1;
+					prev_pg = current_pg - 1;
+					total_pg = data.total_pages;
+
+					current.innerText = current_pg;
+
+					if (current_pg <= 1)
+					{
+						prev.classList.add('disabled');
+						next.classList.remove('disabled');
+					}
+
+					else if (current_pg >= 2) 
+					{
+						prev.classList.remove('disabled');
+						next.classList.remove('disabled');
+					}
+
+					else
+					{
+						prev.classList.remove('disabled');
+						next.classList.remove('disabled');
+					}
+
+		    	}
+		    	else
+		    	{
+		    		main.innerHTML = `
+		    		<h1 class="none">Aww snap, no results found!</h1>`
+		    	}
+		  	})
+		}
+
+		function show_movies(data)
+		{
+		  main.innerHTML = '';
+		  data.forEach(movie => 
+		  {
+		    const {title, poster_path, vote_average, overview, id} = movie;
+		    const movie_element = document.createElement('div');
+		    movie_element.classList.add('movie');
+		    movie_element.innerHTML = `
+		             <img src="${poster_path? img_url + poster_path: "http://via.placeholder.com/1080x1580" }" alt="${title}">
+		            <div class="movie-info">
+		                <h3>${title}</h3>
+		                <span class="red">${vote_average}</span>
+		            </div>
+		            <div class="overview">
+		                <h3>Overview</h3>
+		                ${overview}
+		                <br/> 
+		                <button class="know-more" id="${id}">Know More</button
+		            </div>
+		        
+		        `;
+		        main.appendChild(movie_element);
+		      })
+		}
+
+		form.addEventListener('submit', (x) => 
+		{
+		  x.preventDefault();
+
+		  const search_movie = search.value;
+		  selected_genre = [];
+		  genre_movies();
+
+		  if(search_movie)
+		  {
+		    all_movies(search_url+search_movie);
+		  }
+		  else 
+		  {
+		    all_movies(api_url);
+		  }
+		})
+
+		prev.addEventListener('click', () => {
+		  if(prev_pg > 0){
+		    page_call(prev_pg);
+		  }
+		})
+
+		next.addEventListener('click', () => {
+			if (next_pg <= total_pg)
+			{
+				page_call(next_pg);
+			}
+		})
+
+		function page_call(page)
+		{
+			let url_split = last_url.split('?');
+			let query_param = url_split[1].split('&');
+			let key = query_param[query_param.length - 1].split('=');
+
+			if (key[0] != 'page')
+			{
+				let url = last_url + '&page=' + page
+				all_movies(url);
+			}
+			else
+			{
+				key[1] = page.toString();
+				let x = key.join('=');
+				query_param[query_param.length - 1] = x;
+				let y = query_param.join('&');
+				let url = url_split[0] + '?' + y;
+				all_movies(url);
+			}
+		}
+
+	</script>
+</body>
+</html>
+
