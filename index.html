@@ -9,7 +9,7 @@
 <body>	
 	<header>
 		<form id="form">
-			<input type="text" id="search" class="search" placeholder="SEARCH">
+		<input type="text" id="search" class="search" placeholder="SEARCH">
 		</form>
 	</header>
 	<div id="tags">
@@ -46,14 +46,14 @@
 		const api_url    = base_url + '/discover/movie?sort_by=popularity.desc&' + api_key;
 		const img_url    = 'https://image.tmdb.org/t/p/w500';
 		const search_url = base_url + '/search/movie?' + api_key + '&query=';
-		const main     = document.getElementById('main');
-		const form     = document.getElementById('form');
-		const search   = document.getElementById('search');
-		const tags 	   = document.getElementById('tags');
-		const current  = document.getElementById('current');
-		const next	   = document.getElementById('next');
-		const prev	   = document.getElementById('prev');
-		const genres   = [
+		const main       = document.getElementById('main');
+		const form       = document.getElementById('form');
+		const search     = document.getElementById('search');
+		const tags 	 = document.getElementById('tags');
+		const current    = document.getElementById('current');
+		const next	 = document.getElementById('next');
+		const prev	 = document.getElementById('prev');
+		const genres     = [
 		      {
 		         "id":28,
 		         "name":"Action"
@@ -252,16 +252,13 @@
 						prev.classList.remove('disabled');
 						next.classList.remove('disabled');
 					}
-
 		    	}
 		    	else
 		    	{
-		    		main.innerHTML = `
-		    		<h1 class="none">Aww snap, no results found!</h1>`
+		    		main.innerHTML = `<h1 class="none">Aww snap, no results found!</h1>`
 		    	}
 		  	})
 		}
-
 		function show_movies(data)
 		{
 		  main.innerHTML = '';
@@ -280,10 +277,9 @@
 		                <h3>Overview</h3>
 		                ${overview}
 		                <br/> 
-		                <button class="know-more" id="${id}">Know More</button
+		                <button class="know-more" id="${id}">Know More</button>
 		            </div>
-		        
-		        `;
+	               `;
 		        main.appendChild(movie_element);
 		      })
 		}
@@ -340,7 +336,6 @@
 				all_movies(url);
 			}
 		}
-
 	</script>
 </body>
 </html>
